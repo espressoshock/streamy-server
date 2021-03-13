@@ -63,4 +63,37 @@ router.get('/:audiobookID', (req, res) => {
     .catch((error) => console.error(error));
 });
 
+/* GET /audiobooks/:audiobookID/chapters
+   ============================= */
+router.get('/:audiobookID/chapters', (req, res) => {
+  let audiobookID;
+  try {
+    console.log(req.params.audiobookID);
+    audiobookID = new ObjectID(req.params.audiobookID);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid audiobookID',
+    });
+  }
+  db.collection('audiobooks')
+    .findOne({ _id: audiobookID })
+    .then((data) => {
+      db.collection('chapters')
+        .find({ audiobookID: audiobookID })
+        .toArray()
+        .then((chapters) => {
+          res.json({
+            status: 200,
+            chapters,
+            message:
+              'chapter for audiobook #' +
+              audiobookID +
+              ' retrieved successfully',
+          });
+        })
+        .catch((error) => console.error(error));
+    })
+    .catch((error) => console.error(error));
+});
+
 module.exports = router;
