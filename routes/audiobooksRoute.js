@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
+const ObjectID = require('mongodb').ObjectID;
 
 const MongoClient = require('mongodb').MongoClient;
 
@@ -38,4 +39,28 @@ router.get('/', (req, res) => {
     })
     .catch((error) => console.error(error));
 });
+/* GET /audiobooks/:audiobookID
+   ============================= */
+router.get('/:audiobookID', (req, res) => {
+  let audiobookID;
+  try {
+    console.log(req.params.audiobookID);
+    audiobookID = new ObjectID(req.params.audiobookID);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid audiobookID',
+    });
+  }
+  db.collection('audiobooks')
+    .findOne({ _id: audiobookID })
+    .then((data) => {
+      res.json({
+        status: 200,
+        data,
+        message: 'audiobook #' + audiobookID + ' retrieved successfully',
+      });
+    })
+    .catch((error) => console.error(error));
+});
+
 module.exports = router;
