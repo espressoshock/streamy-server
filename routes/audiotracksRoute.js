@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { Readable } = require('stream');
+const ObjectID = require('mongodb').ObjectID;
 
 const mongodb = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
@@ -64,9 +65,43 @@ router.post('/', (req, res) => {
 
     uploadStream.on('finish', () => {
       return res.status(201).json({
-        message: 'audiotrack #' + id + 'uploaded successfully',
+        message: 'audiotrack #' + id + ' uploaded successfully',
       });
     });
   });
 });
+/* GET /audiotrack/:audiotrackID
+   ============================= */
+router.get('/:audiotrackID', (req, res) => {
+  let audiotrackID;
+  try {
+    console.log(req.params.audiotrackID);
+    audiotrackID = new ObjectID(req.params.audiotrackID);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid audiotrackID',
+    });
+  }
+  res.set('content-type', 'audio/mp3');
+  res.set('accept-ranges', 'bytes');
+
+  let bucket = new mongodb.GridFSBucket(db, {
+    bucketName: 'audiotracks',
+  });
+
+  let downloadStream = bucket.openDownloadStream(audiotrackID);
+
+  downloadStream.on('data', (chunk) => {
+    res.write(chunk);
+  });
+
+  downloadStream.on('error', () => {
+    res.sendStatus(404);
+  });
+
+  downloadStream.on('end', () => {
+    res.end();
+  });
+});
+
 module.exports = router;
