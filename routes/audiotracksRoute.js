@@ -33,7 +33,7 @@ router.post('/', (req, res) => {
   const storage = multer.memoryStorage();
   const upload = multer({
     storage: storage,
-    limits: { fields: 1, fileSize: 16000000, files: 1, parts: 2 },
+    limits: { fields: 1, fileSize: 18000000, files: 1, parts: 2 },
   });
   upload.single('audiotrack')(req, res, (err) => {
     if (err) {
