@@ -49,6 +49,7 @@ router.post('/', (req, res) => {
     genre: req.body.genre,
     language: req.body.language,
     coverImage: req.body.coverImage,
+    chapters: [],
   };
   db.collection('audiobooks')
     .insertOne(doc)
@@ -67,6 +68,53 @@ router.post('/', (req, res) => {
       });
     });
 });
+/* PUT /audiobooks/:audiobookID
+   ============================= */
+router.put('/:audiobookID', (req, res) => {
+  let audiobookID;
+  try {
+    console.log(req.params.audiobookID);
+    audiobookID = new ObjectID(req.params.audiobookID);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid audiobookID',
+    });
+  }
+  const title = req.body.title,
+    author = req.body.author,
+    description = req.body.description,
+    genre = req.body.genre,
+    language = req.body.language,
+    coverImage = req.body.coverImage;
+
+  const doc = Object.assign(
+    {},
+    req.body.title === undefined ? null : { title },
+    req.body.author === undefined ? null : { author },
+    req.body.description === undefined ? null : { description },
+    req.body.genre === undefined ? null : { genre },
+    req.body.language === undefined ? null : { language },
+    req.body.coverImage === undefined ? null : { coverImage }
+  );
+
+  db.collection('audiobooks')
+    .updateOne({ _id: audiobookID }, { $set: doc })
+    .then((resp) => {
+      res.json({
+        status: 200,
+        data: doc,
+        message: 'Success!' + resp,
+      });
+    })
+    .catch((err) => {
+      res.json({
+        status: 400,
+        data: doc,
+        message: 'Error!' + err,
+      });
+    });
+});
+
 /* GET /audiobooks/:audiobookID
    ============================= */
 router.get('/:audiobookID', (req, res) => {
