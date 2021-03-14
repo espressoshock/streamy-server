@@ -67,7 +67,6 @@ router.post('/', (req, res) => {
       });
     });
 });
-
 /* GET /audiobooks/:audiobookID
    ============================= */
 router.get('/:audiobookID', (req, res) => {
@@ -90,6 +89,32 @@ router.get('/:audiobookID', (req, res) => {
       });
     })
     .catch((error) => console.error(error));
+});
+/* POST /audiobooks/:audiobookID/chapters
+   ============================= */
+router.post('/:audiobookID/chapters', (req, res) => {
+  const doc = {
+    title: req.body.title,
+    reader: req.body.reader,
+    duration: req.body.duration,
+    index: req.body.index,
+  };
+  db.collection('chapters')
+    .insertOne(doc)
+    .then((resp) => {
+      res.json({
+        status: 200,
+        data: doc,
+        message: 'Success!' + resp,
+      });
+    })
+    .catch((err) => {
+      res.json({
+        status: 400,
+        data: doc,
+        message: 'Error!' + err,
+      });
+    });
 });
 
 /* GET /audiobooks/:audiobookID/chapters
