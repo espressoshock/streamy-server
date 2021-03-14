@@ -39,6 +39,35 @@ router.get('/', (req, res) => {
     })
     .catch((error) => console.error(error));
 });
+/* POST /audiobooks
+   ============================= */
+router.post('/', (req, res) => {
+  const doc = {
+    title: req.body.title,
+    author: req.body.author,
+    description: req.body.description,
+    genre: req.body.genre,
+    language: req.body.language,
+    coverImage: req.body.coverImage,
+  };
+  db.collection('audiobooks')
+    .insertOne(doc)
+    .then((resp) => {
+      res.json({
+        status: 200,
+        data: doc,
+        message: 'Success!' + resp,
+      });
+    })
+    .catch((err) => {
+      res.json({
+        status: 400,
+        data: doc,
+        message: 'Error!' + err,
+      });
+    });
+});
+
 /* GET /audiobooks/:audiobookID
    ============================= */
 router.get('/:audiobookID', (req, res) => {
