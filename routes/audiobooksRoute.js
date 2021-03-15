@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const ObjectID = require('mongodb').ObjectID;
+const mongoose = require('mongoose');
 
 const MongoClient = require('mongodb').MongoClient;
 
@@ -146,9 +147,56 @@ router.post('/:audiobookID/chapters', (req, res) => {
     reader: req.body.reader,
     duration: req.body.duration,
     index: req.body.index,
+    audiobookID: new ObjectID(),
+    audiotrackID: new ObjectID(),
   };
   db.collection('chapters')
     .insertOne(doc)
+    .then((resp) => {
+      res.json({
+        status: 200,
+        data: doc,
+        message: 'Success!' + resp,
+      });
+    })
+    .catch((err) => {
+      res.json({
+        status: 400,
+        data: doc,
+        message: 'Error!' + err,
+      });
+    });
+});
+/* PUT /audiobooks/:audiobookID/chapters/:chapterID
+   ============================= */
+router.put('/:audiobookId/chapters/:chapterId', (req, res) => {
+  let audiobookId, chapterId;
+  try {
+    audiobookId = new ObjectID(req.params.audiobookId);
+    chapterId = new ObjectID(req.params.chapterId);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid audiobookID or chapterID',
+    });
+  }
+  const title = req.body.title,
+    reader = req.body.reader,
+    duration = req.body.duration,
+    index = req.body.index,
+    audiobookID = mongoose.Types.ObjectId(req.body.audiobookID),
+    audiotrackID = mongoose.Types.ObjectId(req.body.audiotrackID);
+  const doc = Object.assign(
+    {},
+    req.body.title === undefined ? null : { title },
+    req.body.reader === undefined ? null : { reader },
+    req.body.duration === undefined ? null : { duration },
+    req.body.index === undefined ? null : { index },
+    req.body.audiobookID === undefined ? null : { audiobookID },
+    req.body.audiotrackID === undefined ? null : { audiotrackID }
+  );
+
+  db.collection('chapters')
+    .updateOne({ _id: chapterId }, { $set: doc })
     .then((resp) => {
       res.json({
         status: 200,
