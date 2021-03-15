@@ -11,7 +11,7 @@ const port = 3001;
 
 // use router
 app.use(cors());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/audiobooks', audiobooksRoute);
 app.use('/audiotracks', audiotracksRoute);
 
