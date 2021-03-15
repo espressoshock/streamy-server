@@ -66,6 +66,7 @@ router.post('/', (req, res) => {
     uploadStream.on('finish', () => {
       return res.status(201).json({
         message: 'audiotrack #' + id + ' uploaded successfully',
+        audiotrackID: id,
       });
     });
   });
