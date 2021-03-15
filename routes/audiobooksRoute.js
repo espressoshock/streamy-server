@@ -101,7 +101,7 @@ router.put('/:audiobookID', (req, res) => {
 
   console.log('received: ', chapterID);
 
-  if (chapterID !== null) {
+  if (req.body.chapterID !== undefined) {
     db.collection('audiobooks')
       .update({ _id: audiobookID }, { $push: { chapters: chapterID } })
       .then((resp) => {
