@@ -86,7 +86,8 @@ router.put('/:audiobookID', (req, res) => {
     description = req.body.description,
     genre = req.body.genre,
     language = req.body.language,
-    coverImage = req.body.coverImage;
+    coverImage = req.body.coverImage,
+    chapterID = new ObjectID(req.body.chapterID);
 
   const doc = Object.assign(
     {},
@@ -98,22 +99,46 @@ router.put('/:audiobookID', (req, res) => {
     req.body.coverImage === undefined ? null : { coverImage }
   );
 
-  db.collection('audiobooks')
-    .updateOne({ _id: audiobookID }, { $set: doc })
-    .then((resp) => {
-      res.json({
-        status: 200,
-        data: doc,
-        message: 'Success!' + resp,
+  console.log('received: ', chapterID);
+
+  if (chapterID !== null) {
+    db.collection('audiobooks')
+      .update({ _id: audiobookID }, { $push: { chapters: chapterID } })
+      .then((resp) => {
+        console.log('chapterid added correctly');
+        res.json({
+          status: 200,
+          data: resp,
+          message: 'chapter added correctly!' + resp,
+        });
+      })
+      .catch((err) => {
+        console.log('err', err);
+        res.json({
+          status: 200,
+          data: doc,
+          message: 'Success!' + resp,
+        });
       });
-    })
-    .catch((err) => {
-      res.json({
-        status: 400,
-        data: doc,
-        message: 'Error!' + err,
+  }
+  if (Object.keys(doc).length !== 0) {
+    db.collection('audiobooks')
+      .updateOne({ _id: audiobookID }, { $set: doc })
+      .then((resp) => {
+        res.json({
+          status: 200,
+          data: doc,
+          message: 'Success!' + resp,
+        });
+      })
+      .catch((err) => {
+        res.json({
+          status: 400,
+          data: doc,
+          message: 'Error!' + err,
+        });
       });
-    });
+  }
 });
 
 /* GET /audiobooks/:audiobookID
@@ -147,8 +172,8 @@ router.post('/:audiobookID/chapters', (req, res) => {
     reader: req.body.reader,
     duration: req.body.duration,
     index: req.body.index,
-    audiobookID: new ObjectID(),
-    audiotrackID: new ObjectID(),
+    audiobookID: new ObjectID(req.body.audiobookID),
+    audiotrackID: new ObjectID(req.body.audiotrackID),
   };
   db.collection('chapters')
     .insertOne(doc)
@@ -183,7 +208,7 @@ router.put('/:audiobookId/chapters/:chapterId', (req, res) => {
     reader = req.body.reader,
     duration = req.body.duration,
     index = req.body.index,
-    audiobookID = mongoose.Types.ObjectId(req.body.audiobookID),
+    audiobookID = req.body.audiobookID,
     audiotrackID = mongoose.Types.ObjectId(req.body.audiotrackID);
   const doc = Object.assign(
     {},
