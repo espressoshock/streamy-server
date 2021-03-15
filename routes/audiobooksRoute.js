@@ -164,6 +164,29 @@ router.get('/:audiobookID', (req, res) => {
     })
     .catch((error) => console.error(error));
 });
+/* DELETE /audiobooks/:audiobookID
+   ============================= */
+router.delete('/:audiobookID', (req, res) => {
+  let audiobookID;
+  try {
+    console.log(req.params.audiobookID);
+    audiobookID = new ObjectID(req.params.audiobookID);
+  } catch (err) {
+    return res.status(400).json({
+      message: 'Invalid audiobookID',
+    });
+  }
+  db.collection('audiobooks')
+    .deleteOne({ _id: audiobookID })
+    .then((data) => {
+      res.json({
+        status: 200,
+        data,
+        message: 'audiobook #' + audiobookID + ' deleted successfully',
+      });
+    })
+    .catch((error) => console.error(error));
+});
 /* POST /audiobooks/:audiobookID/chapters
    ============================= */
 router.post('/:audiobookID/chapters', (req, res) => {
